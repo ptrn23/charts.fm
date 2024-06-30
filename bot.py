@@ -46,12 +46,28 @@ def run_bot():
             lastfm_username = 'ptrn23'
             recent_track = get_most_recent_track(lastfm_username)
             
-            embed = discord.Embed(title=f'Most Recent Track for {username}',
-            description=f'[{recent_track.track}]({recent_track.track.get_url()}) from *{recent_track.album}*',
+            embed = discord.Embed(
+            title=f'{recent_track.track}',
             color=0xff0000)
             embed.add_field(name='Artist', value=recent_track.track.artist.name, inline=True)
             embed.add_field(name='Album', value=recent_track.album, inline=True)
             embed.add_field(name='Playback Date', value=recent_track.playback_date, inline=False)
+            embed.set_thumbnail(url=recent_track.track.get_cover_image())
+            
+            await message.channel.send(embed=embed)
+        
+        elif message.content.startswith('surpass'):
+            lastfm_username = 'ptrn23'
+            recent_track = get_most_recent_track(lastfm_username)
+            recent_track.track.username = lastfm_username
+
+            count =  recent_track.track.get_userplaycount()
+            
+            embed = discord.Embed(
+            title=f'{recent_track.track} has now surpassed {count} scrobbles!',
+            description=f"— It is the first song by the artist to surpass this milestone in {lastfm_username}'s charts!",
+            color=0xff0000)
+            embed.add_field(name='Milestone Date', value=recent_track.playback_date, inline=False)
             embed.set_thumbnail(url=recent_track.track.get_cover_image())
             
             await message.channel.send(embed=embed)
