@@ -1,8 +1,9 @@
 import discord
 import responses
-from responses import get_most_recent_track
-from discord.ext import commands
 import pylast
+
+from responses import get_most_recent_track
+from color_pick import get_dominant_color, rgb_to_hex
 from key import API_KEY, API_SECRET, TOKEN
 
 network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
@@ -45,6 +46,7 @@ def run_bot():
         if message.content.startswith('recent'):
             lastfm_username = 'ptrn23'
             recent_track = get_most_recent_track(lastfm_username)
+            cover_image_url = recent_track.track.get_cover_image()
             
             embed = discord.Embed(
             title=f'{recent_track.track}',
@@ -52,7 +54,15 @@ def run_bot():
             embed.add_field(name='Artist', value=recent_track.track.artist.name, inline=True)
             embed.add_field(name='Album', value=recent_track.album, inline=True)
             embed.add_field(name='Playback Date', value=recent_track.playback_date, inline=False)
-            embed.set_thumbnail(url=recent_track.track.get_cover_image())
+            embed.set_thumbnail(url=cover_image_url)
+            
+            if cover_image_url:
+                embed.set_thumbnail(url=cover_image_url)
+                dominant_color = get_dominant_color(cover_image_url)
+                if dominant_color:
+                    embed.color = discord.Color(int(rgb_to_hex(dominant_color).strip('#'), 16))
+            else:
+                embed.set_footer(text="Cover image not available.")
             
             await message.channel.send(embed=embed)
         
@@ -60,6 +70,7 @@ def run_bot():
             lastfm_username = 'ptrn23'
             recent_track = get_most_recent_track(lastfm_username)
             recent_track.track.username = lastfm_username
+            cover_image_url = recent_track.track.get_cover_image()
 
             count =  recent_track.track.get_userplaycount()
             
@@ -68,7 +79,15 @@ def run_bot():
             description=f"— It is the first song by the artist to surpass this milestone in {lastfm_username}'s charts!",
             color=0xff0000)
             embed.add_field(name='Milestone Date', value=recent_track.playback_date, inline=False)
-            embed.set_thumbnail(url=recent_track.track.get_cover_image())
+            embed.set_thumbnail(url=cover_image_url)
+            
+            if cover_image_url:
+                embed.set_thumbnail(url=cover_image_url)
+                dominant_color = get_dominant_color(cover_image_url)
+                if dominant_color:
+                    embed.color = discord.Color(int(rgb_to_hex(dominant_color).strip('#'), 16))
+            else:
+                embed.set_footer(text="Cover image not available.")
             
             await message.channel.send(embed=embed)
     
