@@ -1,5 +1,6 @@
 import discord
 import responses
+from responses import get_most_recent_track
 from discord.ext import commands
 import pylast
 from key import API_KEY, API_SECRET, TOKEN
@@ -39,6 +40,20 @@ def run_bot():
         elif user_message:
             await send_message(message, user_message, is_private=False)
         else:
-            await message.channel.send("Please provide a valid message.")
+            await message.channel.send("Please provide a valid message.")  
+            
+        if message.content.startswith('recent'):
+            lastfm_username = 'ptrn23'
+            recent_track = get_most_recent_track(lastfm_username)
+            
+            embed = discord.Embed(title=f'Most Recent Track for {username}',
+            description=f'[{recent_track.track}]({recent_track.track.get_url()}) from *{recent_track.album}*',
+            color=0xff0000)
+            embed.add_field(name='Artist', value=recent_track.track.artist.name, inline=True)
+            embed.add_field(name='Album', value=recent_track.album, inline=True)
+            embed.add_field(name='Playback Date', value=recent_track.playback_date, inline=False)
+            embed.set_thumbnail(url=recent_track.track.get_cover_image())
+            
+            await message.channel.send(embed=embed)
     
     client.run(TOKEN)

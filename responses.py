@@ -21,13 +21,15 @@ def handle_response(message) -> str:
         lastfm_username = 'ptrn23'
         recent_track = get_most_recent_track(lastfm_username)
         if recent_track:
-            return f'Most recent track for {lastfm_username}: {recent_track}'
+            return f'Most recent track for {lastfm_username}: {recent_track.track}'
             
-def get_most_recent_track(username):
+def get_most_recent_track(username: str):
     try:
         last_user = network.get_user(username)
         recent_track = last_user.get_recent_tracks(limit=1)[0]
-        return recent_track.track
+        print(recent_track)
+        
+        return recent_track
     except Exception as e:
         print(f'Error fetching recent track: {str(e)}')
         return None
